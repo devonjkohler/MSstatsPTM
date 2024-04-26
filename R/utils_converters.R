@@ -749,7 +749,6 @@ MSstatsPTMSiteLocator = function(data,
 #' 
 #' @noRd
 #' @keywords internal
-#' @import MSstatsConvert
 .cleanRawMaxQuantPTM = function(msstats_object, protein_id_col, data.type,
                                 remove_by_site = FALSE,
                                 channel_columns = "Reporterintensitycorrected"){
@@ -819,7 +818,6 @@ MSstatsPTMSiteLocator = function(data,
 #' 
 #' @noRd
 #' @keywords internal
-#' @import MSstatsConvert
 MaxQtoMSstatsFormatHelper = function(
     evidence, annotation, data.type = "LF",   
     proteinID = "Proteins",
@@ -884,7 +882,6 @@ MaxQtoMSstatsFormatHelper = function(
 #' 
 #' @noRd
 #' @keywords internal
-#' @import MSstatsConvert
 MaxQtoMSstatsTMTFormatHelper = function(
     evidence, annotation, data.type="TMT", which.proteinid = 'Proteins',
     rmProt_Only.identified.by.site = FALSE, useUniquePeptide = TRUE,
