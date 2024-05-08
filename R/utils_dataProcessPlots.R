@@ -1474,7 +1474,7 @@
 .qc.all.plot.lf = function(datafeature, groupName, title, 
                             y.limdown, y.limup, x.axis.size, y.axis.size, 
                             text.size) {
-  
+  print("INSIDE ALL LF")
   lineNameAxis = RUN = ABUNDANCE = Name = NULL
   
   ## for annotation of condition
@@ -1524,7 +1524,7 @@
 #' @noRd
 .qc.single.plot.lf = function(datafeature, groupname, protein, y.limdown, y.limup,
                             x.axis.size, y.axis.size,text.size){
-  
+  print("INSIDE SINGLE LF")
   PROTEINNAME = ABUNDANCE = lineNameAxis = RUN = Name = NULL
   
   sub = datafeature[PROTEINNAME == protein, ]
@@ -1583,7 +1583,7 @@
 #' @noRd
 .qc.lf = function(data.table.list, type, ylimUp, ylimDown, width, height,
                         x.axis.size, y.axis.size,text.size, which.Protein,
-                         address, ptm_title, protein_title) {
+                         address, ptm_title, protein_title, isPlotly) {
   
   PROTEINNAME = GLOBALPROTEIN = NULL
   
@@ -1605,7 +1605,7 @@
   ## save the plots as pdf or not
   ## If there are the file with the same name
   ## add next numbering at the end of file name
-  if (address != FALSE) {
+  if (!isPlotly && address != FALSE) {
     allfiles = list.files()
     
     num = 0
@@ -1643,10 +1643,12 @@
     datarun.protein = protein.list[[2]]
     groupName.protein = protein.list[[3]]
   }
+  
+  # Init list to return plots
+  output_plots = list()
 
   ## all protein
   if (which.Protein[[1]] == 'all' | which.Protein[[1]] == 'allonly') {
-    
     ## Plot all QC
     ptemp.ptm = .qc.all.plot.lf(datafeature.ptm, groupName.ptm, ptm_title,
                                  y.limdown, y.limup, x.axis.size, y.axis.size, 
@@ -1656,8 +1658,12 @@
                                        protein_title, y.limdown, y.limup, 
                                     x.axis.size, y.axis.size, text.size)
       grid.arrange(ptemp.ptm, ptemp.protein, ncol=1)
-    } else{print(ptemp.ptm)}
-    
+      all_protein_plots <- list(PTEMP.PTM = ptemp.ptm, PTEMP.PROTEIN = ptemp.protein)
+    } else{
+      all_protein_plots <- list(PTEMP.PTM = ptemp.ptm, PTEMP.PROTEIN = NULL)
+      print(ptemp.ptm)
+    }
+    output_plots[[1]] = all_protein_plots
     message("Drew the Quality Contol plot(boxplot) for all ptms/proteins.")
   }
   
@@ -1732,7 +1738,6 @@
     }
     
     for (i in seq_len(nrow(plot_proteins))) {
-      
       ptemp.ptm = .qc.single.plot.lf(datafeature.ptm, groupName.ptm, 
                                    as.character(plot_proteins[, PROTEINNAME][i]
                                                 ),
@@ -1745,14 +1750,25 @@
                                          y.limdown, y.limup, x.axis.size, 
                                          y.axis.size, text.size)
         grid.arrange(ptemp.ptm, ptemp.protein, ncol=1)
-      } else {print(ptemp.ptm)}
+        single_protein_plots <- list(PTEMP.PTM = ptemp.ptm, PTEMP.PROTEIN = ptemp.protein)
+      } else {
+        print(ptemp.ptm)
+        single_protein_plots <- list(PTEMP.PTM = ptemp.ptm, PTEMP.PROTEIN = NULL)
+      }
+      output_plots[[i+1]] = single_protein_plots # to accomodate all proteins
       message(paste0("Drew the Quality Contol plot(boxplot) for ",
                     as.character(plot_proteins[, PROTEINNAME][i]), " (", i, 
                     " of ", nrow(plot_proteins), ")"))
     } # end-loop
     }
   
-  if (address != FALSE) {
+  if (address != FALSE & !isPlotly) {
     dev.off()
   }
+  
+  if(isPlotly) {
+    output_plots <- Filter(function(x) !is.null(x), output_plots)
+    output_plots
+  }
 }
+

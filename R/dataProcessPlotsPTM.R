@@ -16,6 +16,7 @@
 #' @importFrom data.table data.table as.data.table melt dcast `:=` setnames copy rbindlist
 #' @importFrom checkmate assertCharacter assertNumeric assertChoice
 #' @importFrom MSstats theme_msstats
+#' @importFrom plotly ggplotly style add_trace plot_ly subplot
 #' 
 #' @param data name of the list with PTM and (optionally) Protein data, which
 #' can be the output of the MSstatsPTM 
@@ -56,6 +57,9 @@
 #' summarization for each channel and MS run.
 #' @param address the name of folder that will store the results. Default folder
 #'  is the current working directory.
+#' @param isPlotly Parameter to use Plotly or ggplot2. If set to TRUE, MSstats 
+#' will save Plotly plots as HTML files. If set to FALSE MSstats will save ggplot2 plots
+#' as PDF files
 #' The other assigned folder has to be existed under the current working
 #' directory.
 #' An output pdf file is automatically created with the default name of
@@ -96,7 +100,8 @@ dataProcessPlotsPTM = function(data,
                                 which.Protein = NULL,
                                 originalPlot = TRUE,
                                 summaryPlot = TRUE,
-                                address = "") {
+                                address = "",
+                                isPlotly = FALSE) {
   
   type = toupper(type)
   label = .check.dataProcess.plotting.data(data, type, ylimUp, ylimDown, 
@@ -107,6 +112,11 @@ dataProcessPlotsPTM = function(data,
                                 originalPlot, summaryPlot, address)
   
   data.table.list = .format.data.process.plots(data, label)
+  
+  if(isPlotly & address != FALSE) {
+    print("Plots will be saved as .HTML file as plotly is selected, set isPlotly = FALSE, if 
+            you want to generate PDF using ggplot2")
+  }
   
   ## Filter for all PTMs in one protein
   if (!is.null(which.Protein)){
@@ -148,14 +158,118 @@ dataProcessPlotsPTM = function(data,
   ## QC plot (Quality control plot) ##
   ## ---------------------------------
   if (type == "QCPLOT") {
+    print(label)
     if (label == 'TMT'){
       .qc.tmt(data.table.list, type, ylimUp, ylimDown, width, height, 
               x.axis.size, y.axis.size, text.size, text.angle,
               which.PTM, address, ptm.title, protein.title)
     } else if (label == 'LabelFree'){
-      .qc.lf(data.table.list, type, ylimUp, ylimDown, width, height, 
+      plots <- .qc.lf(data.table.list, type, ylimUp, ylimDown, width, height, 
              x.axis.size, y.axis.size, text.size,
-             which.PTM, address, ptm.title, protein.title)
+             which.PTM, address, ptm.title, protein.title, isPlotly)
+      
+      plotly_plots <- vector("list", length(plots))
+      if(isPlotly) {
+        for(i in seq_along(plots)) {
+          plot <- plots[[i]]
+          plotly_plot_ptm <- .convertGgplot2Plotly(plot[["PTEMP.PTM"]])
+          plotly_plot_protein <- .convertGgplot2Plotly(plot[["PTEMP.PROTEIN"]])
+          plotly_plot_combined <- subplot(plotly_plot_ptm, plotly_plot_protein, nrows = 2, margin=0.05)
+          plotly_plots[[i]] = list(plotly_plot_combined)
+        }
+        if(address != FALSE) {
+          .savePlotlyPlotHTML(plotly_plots,address,"QCPlot" ,width, height)
+        }
+        plotly_plots <- unlist(plotly_plots, recursive = FALSE)
+        plotly_plots
+      }
     } 
   }
+}
+
+#' converter for plots from ggplot to plotly
+#' @noRd
+.convertGgplot2Plotly = function(plot, tips = "all") {
+  converted_plot <- ggplotly(plot,tooltip = tips)
+  converted_plot <- plotly::layout(
+    converted_plot,
+    width = 1000,   # Set the width of the chart in pixels
+    height = 600,  # Set the height of the chart in pixels
+    title = list(
+      font = list(
+        size = 18
+      )
+    ),
+    xaxis = list(
+      titlefont = list(
+        size = 15  # Set the font size for the x-axis label
+      )
+    ),
+    legend = list(
+      x = 0,     # Set the x position of the legend
+      y = -0.25,    # Set the y position of the legend (negative value to move below the plot)
+      orientation = "h",  # Horizontal orientation
+      font = list(
+        size = 12  # Set the font size for legend item labels
+      ),
+      title = list(
+        font = list(
+          size = 12  # Set the font size for the legend title
+        )
+      )
+    )
+  ) 
+  converted_plot
+}
+
+.savePlotlyPlotHTML = function(plots, address, file_name, width, height) {
+  print("Saving plots as HTML")
+  pb <- txtProgressBar(min = 0, max = 4, style = 3)
+  
+  setTxtProgressBar(pb, 1)
+  file_name = getFileName(address, file_name, width, height)
+  file_name = paste0(file_name,".html")
+  
+  setTxtProgressBar(pb, 2)
+  doc <- .getPlotlyPlotHTML(plots, width, height)
+  
+  setTxtProgressBar(pb, 3)
+  htmltools::save_html(html = doc, file = file_name) # works but lib same folder
+  
+  setTxtProgressBar(pb, 4)
+  zip(paste0(gsub("\\.html$", "", file_name),".zip"), c(file_name, "lib"))
+  unlink(file_name)
+  unlink("lib",recursive = T)
+  
+  close(pb)
+}
+
+getFileName = function(name_base, file_name, width, height) {
+  all_files = list.files(".")
+  if(file_name == 'ProfilePlot'){
+    num_same_name = sum(grepl(paste0("^", name_base, file_name, "_[0-9]?"), all_files))
+  } else {
+    num_same_name = sum(grepl(paste0("^", name_base, file_name, "[0-9]?"), all_files))
+  }
+  if (num_same_name > 0) {
+    file_name = paste(file_name, num_same_name + 1, sep = "_")
+  }
+  file_path = paste0(name_base, file_name)
+  return(file_path)
+}
+
+.getPlotlyPlotHTML = function(plots, width, height) {
+  doc <- htmltools::tagList(lapply(plots,function(x) htmltools::div(x, style = "float:left;width:100%;")))
+  # Set a specific width for each plot
+  plot_width <- 800
+  plot_height <- 600
+  
+  # Create a div for each plot with style settings
+  divs <- lapply(plots, function(x) {
+    htmltools::div(x, style = paste0("width:", plot_width, "px; height:", plot_height, "px; margin: 10px;"))
+  })
+  
+  # Combine the divs into a tagList
+  doc <- htmltools::tagList(divs)
+  doc
 }
