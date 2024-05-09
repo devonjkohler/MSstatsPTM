@@ -30,7 +30,6 @@
   
   ## Test if input is labelfree or tmt
   data.ptm = data[['PTM']]$FeatureLevelData
-  
   if ('Mixture' %in% colnames(data.ptm)){
     label = "TMT"
   }
@@ -721,7 +720,9 @@
     theme_msstats(type = "PROFILEPLOT", x.axis.size, y.axis.size, 13, 
                   element_rect(fill = "gray95"),
                   element_text(colour = c("#00B0F6"), size = 14),
-                  "none", text_angle = text.angle)
+                  "none", text_angle = text.angle) +
+    theme(strip.text.x = element_text(
+            size = 5,angle = 15))
     # theme(
     #   panel.background = element_rect(fill = 'white', colour = "black"),
     #   legend.key = element_rect(fill = 'white', colour = 'white'),
@@ -788,7 +789,9 @@
     theme_msstats(type = "PROFILEPLOT", x.axis.size, y.axis.size, 13, 
                   element_rect(fill = "gray95"),
                   element_text(colour = c("#00B0F6"), size = 14),
-                  "none", text_angle = text.angle)
+                  "none", text_angle = text.angle) +
+    theme(strip.text.x = element_text(
+      size = 5,angle = 15))
     # theme(
     #   panel.background = element_rect(fill = 'white', colour = "black"),
     #   legend.key = element_rect(fill = 'white', colour = 'white'),
@@ -811,7 +814,7 @@
 #' @noRd
 .qc.tmt = function(data.table.list, type, ylimUp, ylimDown, width, height,
                     x.axis.size, y.axis.size,text.size, text.angle, 
-                    which.Protein, address, ptm_title, protein_title) {
+                    which.Protein, address, ptm_title, protein_title, isPlotly) {
   
   PROTEINNAME = GLOBALPROTEIN = NULL
   
@@ -833,7 +836,7 @@
   ## save the plots as pdf or not
   ## If there are the file with the same name
   ## add next numbering at the end of file name
-  if (address != FALSE) {
+  if (!isPlotly && address != FALSE) {
     allfiles = list.files()
     
     num = 0
@@ -874,6 +877,9 @@
     groupline.protein = protein.list[[3]]
     groupline.all.protein = protein.list[[4]]
   }
+  
+  # Init list to return plots
+  output_plots = list()
     
   ## all protein
   if (which.Protein[[1]] == 'all' | which.Protein[[1]] == 'allonly') {
@@ -888,9 +894,12 @@
                                     y.limdown, x.axis.size, y.axis.size,text.size, 
                                     text.angle)
       grid.arrange(ptemp.ptm, ptemp.protein, ncol=1)
+      all_protein_plots <- list(PTEMP.PTM = ptemp.ptm, PTEMP.PROTEIN = ptemp.protein)
     } else {
+      all_protein_plots <- list(PTEMP.PTM = ptemp.ptm, PTEMP.PROTEIN = NULL)
       print(ptemp.ptm)
     }
+    output_plots[[1]] = all_protein_plots
     message("Drew the Quality Contol plot(boxplot) for all ptms/proteins.")
   }
   
@@ -978,8 +987,12 @@
                                          y.limup, y.limdown, x.axis.size, 
                                          y.axis.size, text.size, text.angle)
         grid.arrange(ptemp.ptm, ptemp.protein, ncol=1)
-      } else {print(ptemp.ptm)}
-
+        single_protein_plots <- list(PTEMP.PTM = ptemp.ptm, PTEMP.PROTEIN = ptemp.protein)
+      } else {
+        print(ptemp.ptm)
+        single_protein_plots <- list(PTEMP.PTM = ptemp.ptm, PTEMP.PROTEIN = NULL)
+      }
+      output_plots[[i+1]] = single_protein_plots # to accomodate all proteins
       message(paste("Drew the Quality Contol plot(boxplot) for",
                     as.character(plot_proteins[, PROTEINNAME][i]), "(", i, 
                     " of ", nrow(plot_proteins), ")"))
@@ -989,6 +1002,11 @@
   
   if (address != FALSE) {
     dev.off()
+  }
+  
+  if(isPlotly) {
+    output_plots <- Filter(function(x) !is.null(x), output_plots)
+    output_plots
   }
 }
 
@@ -1253,7 +1271,7 @@
                              x.axis.size, y.axis.size,text.size,text.angle, 
                              legend.size, dot.size.profile, ncol.guide, width, 
                              height,which.Protein,originalPlot,summaryPlot,
-                             address) {
+                             address, isPlotly) {
   
   PROTEINNAME = GLOBALPROTEIN = NULL
   
@@ -1372,8 +1390,13 @@
     plot_proteins = unique(datafeature.ptm[, c('PROTEINNAME')])
   }
   
+  # init list to return plots
+  output_plots <- list()
+  output_plots[["original_plot"]] = list()
+  output_plots[["summary_plot"]] = list()
+  
   if (originalPlot) {
-    if (address != FALSE) {
+    if (!isPlotly && address != FALSE) {
       allfiles = list.files()
       
       num = 0
@@ -1406,17 +1429,20 @@
                                          y.axis.size, text.size, text.angle, 
                                          legend.size, dot.size.profile, 
                                          ncol.guide)
-        
+        original_profile_plots <- list(PTEMP.PTM = ptm_temp, PTEMP.PROTEIN = protein_temp)
         grid.arrange(ptm_temp, protein_temp, ncol=1)
-      } else{print(ptm_temp)}
-      
+      } else{
+        original_profile_plots <- list(PTEMP.PTM = ptm_temp, PTEMP.PROTEIN = NULL)
+        print(ptm_temp)
+      }
+      output_plots[["original_plot"]][[paste("plot",i)]] <- original_profile_plots
       message(paste0("Drew the Profile plot for ", 
                     as.character(plot_proteins[, PROTEINNAME][i]),
                     " (", i, " of ", nrow(plot_proteins), ")"))
     }
     # end-loop for each protein
     
-    if (address != FALSE) {
+    if (address != FALSE & !isPlotly) {
       dev.off()
     }
     
@@ -1427,7 +1453,7 @@
   ############################################
   
   if (summaryPlot) {
-    if (address != FALSE) {
+    if (!isPlotly && address != FALSE) {
       allfiles = list.files()
       
       num = 0
@@ -1454,18 +1480,24 @@
           plot_proteins[, GLOBALPROTEIN][i]), y.limup, y.limdown, x.axis.size,
           y.axis.size, text.size, text.angle, legend.size, dot.size.profile, 
           ncol.guide)
-        
+        summary_profile_plots <- list(PTEMP.PTM = ptm_temp, PTEMP.PROTEIN = protein_temp)
         grid.arrange(ptm_temp, protein_temp, ncol=1)
-      } else {print(ptm_temp)}
-        
+      } else {
+        summary_profile_plots <- list(PTEMP.PTM = ptm_temp, PTEMP.PROTEIN = NULL)
+        print(ptm_temp)
+      }
+      output_plots[["summary_plot"]][[paste("plot",i)]] <- summary_profile_plots
       message(paste("Drew the Profile plot for ", 
                     as.character(plot_proteins[, PROTEINNAME][i]),
                     "(", i, " of ", nrow(plot_proteins), ")"))
     }
-    if (address!=FALSE) {
+    if (address!=FALSE & !isPlotly) {
       dev.off()
     }
   } # end summarization plot
+  if(isPlotly) {
+    output_plots
+  }
   
 }
 
