@@ -210,7 +210,7 @@ dataProcessPlotsPTM = function(data,
              which.PTM, address, ptm.title, protein.title, isPlotly)
     } 
     
-    plotly_plots <- vector("list", length(plots))
+    plotly_plots <- list()
     if(isPlotly) {
       for(i in seq_along(plots)) {
         plot <- plots[[i]]
@@ -223,7 +223,40 @@ dataProcessPlotsPTM = function(data,
           if(label == "TMT") {
             plotly_plot_protein <- facet_strip_bigger(plotly_plot_protein)
           }
-          plotly_plot_combined <- subplot(plotly_plot_ptm, plotly_plot_protein, nrows = 2, margin=0.05)
+          
+          title_ptm <- plotly_plot_ptm$x$layout$title$text
+          title_protein <- plotly_plot_protein$x$layout$title$text
+          
+          plotly_plot_ptm <- plotly::layout(plotly_plot_ptm, title = "")
+          plotly_plot_protein <- plotly::layout(plotly_plot_protein, title = "")
+          
+          plotly_plot_combined <- subplot(plotly_plot_ptm, plotly_plot_protein, nrows = 2, margin=0.1,titleX = TRUE, titleY = TRUE)
+          plotly_plot_combined <- plotly::layout(plotly_plot_combined,
+                                 annotations = list(
+                                   list(
+                                     x = 0.04,  # Centered horizontally
+                                     y = 1.05,  # Above the first plot
+                                     text = title_ptm,  # Use extracted title
+                                     showarrow = FALSE,
+                                     xref = 'paper',
+                                     yref = 'paper',
+                                     xanchor = 'center',
+                                     yanchor = 'bottom',
+                                     font = list(size = 16)
+                                   ),
+                                   list(
+                                     x = 0.04,  # Centered horizontally
+                                     y = 0.45,  # Above the second plot (adjust as necessary)
+                                     text = title_protein,  # Use extracted title
+                                     showarrow = FALSE,
+                                     xref = 'paper',
+                                     yref = 'paper',
+                                     xanchor = 'center',
+                                     yanchor = 'bottom',
+                                     font = list(size = 16)
+                                   )
+                                 )
+          )
           plotly_plots[[i]] = list(plotly_plot_combined)
         } else {
           plotly_plots[[i]] = list(plotly_plot_ptm)
