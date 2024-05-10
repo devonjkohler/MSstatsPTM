@@ -1124,18 +1124,17 @@
   
   yaxis.name = 'Log-intensities'
   sub$group_aes = paste(sub$CONDITION, sub$FEATURE, sep = "_")
-  
   ## 1st plot for Protein plot
   protein_temp = ggplot(data=sub) + facet_grid(~LABEL) +
     geom_point(aes_string(x='RUN', y='ABUNDANCE', 
-                          color='FEATURE', group = 'group_aes'), #
+                          color='FEATURE', group = 'group_aes', shape='CENSORED'), #
                size=dot.size.profile, na.rm=TRUE) +
     geom_line(aes_string(x='RUN', y='ABUNDANCE', 
                          color='FEATURE', linetype='FEATURE', group = 'group_aes'), #
               size = 0.5, na.rm=TRUE) +
     scale_colour_manual(values=cbp[s]) +
     scale_linetype_manual(values = ss) +
-    scale_shape_manual(values = c(16)) +
+    scale_shape_manual(values = c(16, 1),labels = c("Detected data", "Censored missing data")) +
     labs(title = unique(sub$PROTEINNAME),
          x = 'MS runs') +
     scale_y_continuous(yaxis.name, limits = c(y.limdown, y.limup)) +
