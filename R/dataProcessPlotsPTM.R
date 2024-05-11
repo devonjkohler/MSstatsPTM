@@ -118,7 +118,7 @@ dataProcessPlotsPTM = function(data,
             you want to generate PDF using ggplot2")
   }
   
-  ## Filter for all PTMs in one protein
+  ## Filter for all PTMs in one proteins
   if (!is.null(which.Protein)){
     
     data.table.list[[1]] = data.table.list[[1]][PROTEINNAME %in% which.Protein]
