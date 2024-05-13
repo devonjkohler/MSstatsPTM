@@ -145,7 +145,7 @@ dataProcessPlotsPTM = function(data,
                    x.axis.size, y.axis.size,text.size,text.angle, 
                    legend.size, dot.size.profile, ncol.guide, width, 
                    height, which.PTM, originalPlot, summaryPlot, 
-                   address)
+                   address, isPlotly)
     } else if (label == 'LabelFree'){
       plots <- .profile.lf(data.table.list, type, ylimUp, ylimDown, 
                   x.axis.size, y.axis.size,text.size,text.angle, 
@@ -179,15 +179,14 @@ dataProcessPlotsPTM = function(data,
             plotly_plot_ptm = .fixLegendPlotlyPlotsDataprocess(plotly_plot_ptm, "SummaryPlot")
             if (!is.null(plot_i[["PTEMP.PROTEIN"]])) {
               plotly_plot_protein <- .convertGgplot2Plotly(plot_i[["PTEMP.PROTEIN"]])
-              plotly_plot_protein = .fixLegendPlotlyPlotsDataprocess(plotly_plot_protein, "SummaryPlot")
               plotly_plot_combined_summary <- .combineSubPlotsPlotly(plotly_plot_ptm, plotly_plot_protein)
+              plotly_plot_combined_summary = .fixLegendPlotlyPlotsDataprocess(plotly_plot_combined_summary, "SummaryPlot")
               plotly_plots = c(plotly_plots, list(plotly_plot_combined_summary))
             } else {
               plotly_plots = c(plotly_plots, list(plotly_plot_ptm))
             }
           }
         }
-        print(plotly_plots)
         if(address != FALSE) {
           .savePlotlyPlotHTML(plotly_plots,address,"ProfilePlot" ,width, height)
         }
@@ -290,7 +289,9 @@ dataProcessPlotsPTM = function(data,
     is_bool <- df$is_bool[[i]]
     plot$x$data[[i]]$name <- df$legend_group[[i]]
     plot$x$data[[i]]$legendgroup <- plot$x$data[[i]]$name
-    if (!is_first) plot$x$data[[i]]$showlegend <- FALSE
+    if (!is_first) {
+      plot$x$data[[i]]$showlegend <- FALSE
+    } 
     if(type == "SummaryPlot") {
       is_valid_column <- df$is_valid_column[[i]]
       if (!is_valid_column) plot$x$data[[i]]$showlegend <- FALSE
