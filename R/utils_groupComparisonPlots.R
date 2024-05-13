@@ -311,10 +311,10 @@
 .plotVolcano = function(data, sig, FCcutoff, logBase.pvalue, ylimUp, ylimDown, 
                      xlimUp, x.axis.size, y.axis.size, dot.size, text.size, 
                      legend.size, ProteinName, colorkey, numProtein,
-                     width, height, address, plot_name_list){
+                     width, height, address, plot_name_list, isPlotly){
   ## If there are the file with the same name
   ## add next numbering at the end of file name
-  if (address != FALSE) {
+  if (!isPlotly && address != FALSE) {
     allfiles = list.files()
     
     num = 0
@@ -329,24 +329,27 @@
     pdf(finalfile, width=width, height=height)
   }
 
-  .plot.model.volcano(data[['PTM.Model']], sig, FCcutoff, logBase.pvalue, 
+  ptm_plots <- .plot.model.volcano(data[['PTM.Model']], sig, FCcutoff, logBase.pvalue, 
                       ylimUp, ylimDown, xlimUp, x.axis.size, y.axis.size, 
                       dot.size, text.size, legend.size, ProteinName,
-                      plot_name_list[[1]])
-  
+                      plot_name_list[[1]], isPlotly)
+  final_plots = ptm_plots
   if (nrow(data[['PROTEIN.Model']])) {
-    .plot.model.volcano(data[['PROTEIN.Model']], sig, FCcutoff, logBase.pvalue, 
+    protein_plots <- .plot.model.volcano(data[['PROTEIN.Model']], sig, FCcutoff, logBase.pvalue, 
                         ylimUp, ylimDown, xlimUp, x.axis.size, y.axis.size, 
                         dot.size, text.size, legend.size, ProteinName,
-                        plot_name_list[[2]])
-    .plot.model.volcano(data[['ADJUSTED.Model']], sig, FCcutoff, logBase.pvalue,
+                        plot_name_list[[2]], isPlotly)
+    adjusted_plots <- .plot.model.volcano(data[['ADJUSTED.Model']], sig, FCcutoff, logBase.pvalue,
                         ylimUp, ylimDown, xlimUp, x.axis.size, y.axis.size, 
                         dot.size, text.size, legend.size, ProteinName,
-                        plot_name_list[[3]])
+                        plot_name_list[[3]], isPlotly)
+    final_plots <- c(final_plots, protein_plots, adjusted_plots)
   }
-  
   if (address != FALSE) {
     dev.off()
+  }
+  if (isPlotly) {
+    final_plots
   }
 }
 
@@ -355,7 +358,7 @@
 .plot.model.volcano = function(data, sig, FCcutoff, logBase.pvalue, ylimUp,
                                 ylimDown, xlimUp, x.axis.size, y.axis.size, 
                                 dot.size, text.size, legend.size, ProteinName,
-                                model){
+                                model, isPlotly){
   log2FC = Protein = NULL
   
   if (logBase.pvalue == 2) {
@@ -399,7 +402,9 @@
   }
   
   data$colgroup = factor(data$colgroup, levels=c("black", "blue", "red"))
-  
+  plots <- vector("list", nlevels(data$Label))
+  print("len isss")
+  print(nlevels(data$Label))
   ## for multiple volcano plots, 
   for (i in seq_len(nlevels(data$Label))) {
     
@@ -610,5 +615,9 @@
       # )
     
     print(pfinal)
+    plots[[i]] = pfinal
+  }
+  if (isPlotly) {
+    plots
   }
 }

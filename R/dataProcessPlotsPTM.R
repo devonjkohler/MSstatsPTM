@@ -315,12 +315,12 @@ facet_strip_bigger <- function(gp){
 
 #' converter for plots from ggplot to plotly
 #' @noRd
-.convertGgplot2Plotly = function(plot, tips = "all") {
+.convertGgplot2Plotly = function(plot, tips = "all", width = 1800, height = 600) {
   converted_plot <- ggplotly(plot,tooltip = tips)
   converted_plot <- plotly::layout(
     converted_plot,
-    width = 1800,   # Set the width of the chart in pixels
-    height = 600,  # Set the height of the chart in pixels
+    width = width,   # Set the width of the chart in pixels
+    height = height,  # Set the height of the chart in pixels
     title = list(
       font = list(
         size = 18
