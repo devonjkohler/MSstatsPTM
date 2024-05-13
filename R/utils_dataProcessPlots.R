@@ -292,17 +292,16 @@
   }
   
   yaxis.name = 'Log2-intensities'
-  
   ## 1st plot for Protein plot
   protein_temp = ggplot(aes_string(x = 'xorder', y = 'ABUNDANCE',
                                     color = 'PSM', linetype = 'PSM'),
                          data = sub) +
     facet_grid(~RUN) +
-    geom_point(size=dot.size.profile, na.rm=TRUE) +
+    geom_point(data = sub, aes(shape=CENSORED), size=dot.size.profile, na.rm=TRUE) +
     geom_line(size = 0.5, na.rm=TRUE) +
     scale_colour_manual(values=cbp[s]) +
     scale_linetype_manual(values = ss) +
-    scale_shape_manual(values = c(16)) +
+    scale_shape_manual(values = c(16, 1),labels = c("Detected data", "Censored missing data")) +
     labs(title = unique(sub$PROTEINNAME),
          x = 'MS runs') +
     scale_y_continuous(yaxis.name, limits = c(y.limdown, y.limup)) +
@@ -423,10 +422,11 @@
                                 color = 'analysis', linetype = 'PSM', 
                                 size = 'analysis'), data = final) +
     facet_grid(~RUN) +
-    geom_point(size = dot.size.profile, na.rm=TRUE) +
+    # geom_point(size = dot.size.profile, na.rm=TRUE) +
+    geom_point(data = final, aes(shape=CENSORED), size=dot.size.profile, na.rm=TRUE) +
     geom_line(size = 0.5, na.rm=TRUE) +
     scale_colour_manual(values = c("lightgray", "darkred")) +
-    scale_shape_manual(values = c(16)) +
+    scale_shape_manual(values = c(16, 1),labels = c("Detected data", "Censored missing data")) +
     scale_size_manual(values = c(1.7, 2), guide = "none") +
     scale_linetype_manual(values = c(rep(1, times = length(
       unique(final$PSM))-1), 2), guide = "none") +
@@ -462,7 +462,7 @@
                           x.axis.size, y.axis.size,text.size,text.angle, 
                           legend.size, dot.size.profile, ncol.guide, width, 
                           height,which.Protein,originalPlot,summaryPlot,
-                          address){
+                          address, isPlotly){
   
   PROTEINNAME = GLOBALPROTEIN = NULL
   
@@ -582,9 +582,14 @@
   } else {
     plot_proteins = unique(datafeature.ptm[, c('PROTEINNAME')])
   }
+  
+  # init list to return plots
+  output_plots <- list()
+  output_plots[["original_plot"]] = list()
+  output_plots[["summary_plot"]] = list()
 
   if (originalPlot) {
-    if (address != FALSE) {
+    if (!isPlotly && address != FALSE) {
       allfiles = list.files()
       
       num = 0
@@ -615,16 +620,20 @@
                                  y.limup, y.limdown, x.axis.size,
                                  y.axis.size, text.size, text.angle, 
                                  legend.size, dot.size.profile, ncol.guide)
-        
+        original_profile_plots <- list(PTEMP.PTM = ptm_temp, PTEMP.PROTEIN = protein_temp)
         grid.arrange(ptm_temp, protein_temp, ncol=1)
-      } else {print(ptm_temp)}
+      } else {
+        original_profile_plots <- list(PTEMP.PTM = ptm_temp, PTEMP.PROTEIN = NULL)
+        print(ptm_temp)
+      }
+      output_plots[["original_plot"]][[paste("plot",i)]] <- original_profile_plots
       message(paste0("Drew the Profile plot for ", 
                     as.character(plot_proteins[, PROTEINNAME][i]),
                     " (", i, " of ", nrow(plot_proteins), ")"))
     }
     # end-loop for each protein
     
-    if (address != FALSE) {
+    if (address != FALSE & !isPlotly) {
       dev.off()
     }
     
@@ -635,7 +644,7 @@
   ############################################
   
   if (summaryPlot) {
-    if (address != FALSE) {
+    if (!isPlotly && address != FALSE) {
       allfiles = list.files()
       
       num = 0
@@ -661,20 +670,26 @@
           plot_proteins[, GLOBALPROTEIN][i]), y.limup, y.limdown, x.axis.size,
           y.axis.size, text.size, text.angle, legend.size,
           dot.size.profile, ncol.guide)
-        
+        summary_profile_plots <- list(PTEMP.PTM = ptm_temp, PTEMP.PROTEIN = protein_temp)
         grid.arrange(ptm_temp, protein_temp, ncol=1)
-      } else {print(ptm_temp)}
-      
+      } else {
+        summary_profile_plots <- list(PTEMP.PTM = ptm_temp, PTEMP.PROTEIN = NULL)
+        print(ptm_temp)
+      }
+      output_plots[["summary_plot"]][[paste("plot",i)]] <- summary_profile_plots
       message(paste("Drew the Profile plot for ", 
                     as.character(plot_proteins[, PROTEINNAME][i]),
                     "(", i, " of ", nrow(plot_proteins), ")"))
 
       }
       
-    if (address!=FALSE) {
+    if (address!=FALSE & !isPlotly) {
       dev.off()
     }
   } # end summarization plot
+  if(isPlotly) {
+    output_plots
+  }
 }
 
 #' Plot boxplot of all proteins
@@ -1234,12 +1249,12 @@
   ptempall = ggplot(data=final) +
     geom_point(aes_string(x='RUN', y='ABUNDANCE', 
                           color='analysis',
-                          group = 'group_aes'), size = dot.size.profile, na.rm=TRUE) +
+                          group = 'group_aes', shape='CENSORED'), size = dot.size.profile, na.rm=TRUE) +
     geom_line(aes_string(x='RUN', y='ABUNDANCE', 
                          color='analysis', linetype='FEATURE', 
                          group = 'group_aes'), size = 0.5, na.rm=TRUE) + 
     scale_colour_manual(values = c("lightgray", "darkred")) +
-    scale_shape_manual(values = c(16)) +
+    scale_shape_manual(values = c(16, 1),labels = c("Detected data", "Censored missing data")) +
     scale_size_manual(values = c(1.7, 2), guide = "none") +
     scale_linetype_manual(values = c(rep(1, times = length(
       unique(final$FEATURE))-1), 2), guide = "none") +

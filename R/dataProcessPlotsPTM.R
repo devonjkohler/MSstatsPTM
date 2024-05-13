@@ -141,7 +141,7 @@ dataProcessPlotsPTM = function(data,
   ## ---------------
   if (type == "PROFILEPLOT") {
     if (label == 'TMT'){
-      .profile.tmt(data.table.list, type, ylimUp, ylimDown, 
+      plots <- .profile.tmt(data.table.list, type, ylimUp, ylimDown, 
                    x.axis.size, y.axis.size,text.size,text.angle, 
                    legend.size, dot.size.profile, ncol.guide, width, 
                    height, which.PTM, originalPlot, summaryPlot, 
@@ -152,46 +152,45 @@ dataProcessPlotsPTM = function(data,
                   legend.size, dot.size.profile, ncol.guide, width, 
                   height, which.PTM, originalPlot, 
                   summaryPlot, address, isPlotly)
-      
-      plotly_plots <- list()
-      if(isPlotly) {
-        og_plotly_plot = NULL
-        summ_plotly_plot = NULL
-        if("original_plot" %in% names(plots)) {
-          for(i in seq_along(plots[["original_plot"]])) {
-            plot_i <- plots[["original_plot"]][[paste("plot",i)]]
-            plotly_plot_ptm <- .convertGgplot2Plotly(plot_i[["PTEMP.PTM"]])
-            plotly_plot_ptm = .fixLegendPlotlyPlotsDataprocess(plotly_plot_ptm, "OriginalPlot")
-            if (!is.null(plot_i[["PTEMP.PROTEIN"]])) {
-              plotly_plot_protein <- .convertGgplot2Plotly(plot_i[["PTEMP.PROTEIN"]])
-              plotly_plot_protein = .fixLegendPlotlyPlotsDataprocess(plotly_plot_protein, "OriginalPlot")
-              plotly_plot_combined_original <- .combineSubPlotsPlotly(plotly_plot_ptm, plotly_plot_protein)
-              plotly_plots = c(plotly_plots, list(plotly_plot_combined_original))
-            } else {
-              plotly_plots = c(plotly_plots, list(plotly_plot_ptm))
-            }
+    }
+    plotly_plots <- list()
+    if(isPlotly) {
+      og_plotly_plot = NULL
+      summ_plotly_plot = NULL
+      if("original_plot" %in% names(plots)) {
+        for(i in seq_along(plots[["original_plot"]])) {
+          plot_i <- plots[["original_plot"]][[paste("plot",i)]]
+          plotly_plot_ptm <- .convertGgplot2Plotly(plot_i[["PTEMP.PTM"]])
+          plotly_plot_ptm = .fixLegendPlotlyPlotsDataprocess(plotly_plot_ptm, "OriginalPlot")
+          if (!is.null(plot_i[["PTEMP.PROTEIN"]])) {
+            plotly_plot_protein <- .convertGgplot2Plotly(plot_i[["PTEMP.PROTEIN"]])
+            plotly_plot_protein = .fixLegendPlotlyPlotsDataprocess(plotly_plot_protein, "OriginalPlot")
+            plotly_plot_combined_original <- .combineSubPlotsPlotly(plotly_plot_ptm, plotly_plot_protein)
+            plotly_plots = c(plotly_plots, list(plotly_plot_combined_original))
+          } else {
+            plotly_plots = c(plotly_plots, list(plotly_plot_ptm))
           }
         }
-        if("summary_plot" %in% names(plots)) {
-          for(i in seq_along(plots[["summary_plot"]])) {
-            plot_i <- plots[["summary_plot"]][[paste("plot",i)]]
-            plotly_plot_ptm <- .convertGgplot2Plotly(plot_i[["PTEMP.PTM"]])
-            plotly_plot_ptm = .fixLegendPlotlyPlotsDataprocess(plotly_plot_ptm, "SummaryPlot")
-            if (!is.null(plot_i[["PTEMP.PROTEIN"]])) {
-              plotly_plot_protein <- .convertGgplot2Plotly(plot_i[["PTEMP.PROTEIN"]])
-              plotly_plot_combined_summary <- .combineSubPlotsPlotly(plotly_plot_ptm, plotly_plot_protein)
-              plotly_plot_combined_summary = .fixLegendPlotlyPlotsDataprocess(plotly_plot_combined_summary, "SummaryPlot")
-              plotly_plots = c(plotly_plots, list(plotly_plot_combined_summary))
-            } else {
-              plotly_plots = c(plotly_plots, list(plotly_plot_ptm))
-            }
-          }
-        }
-        if(address != FALSE) {
-          .savePlotlyPlotHTML(plotly_plots,address,"ProfilePlot" ,width, height)
-        }
-        plotly_plots
       }
+      if("summary_plot" %in% names(plots)) {
+        for(i in seq_along(plots[["summary_plot"]])) {
+          plot_i <- plots[["summary_plot"]][[paste("plot",i)]]
+          plotly_plot_ptm <- .convertGgplot2Plotly(plot_i[["PTEMP.PTM"]])
+          plotly_plot_ptm = .fixLegendPlotlyPlotsDataprocess(plotly_plot_ptm, "SummaryPlot")
+          if (!is.null(plot_i[["PTEMP.PROTEIN"]])) {
+            plotly_plot_protein <- .convertGgplot2Plotly(plot_i[["PTEMP.PROTEIN"]])
+            plotly_plot_combined_summary <- .combineSubPlotsPlotly(plotly_plot_ptm, plotly_plot_protein)
+            plotly_plot_combined_summary = .fixLegendPlotlyPlotsDataprocess(plotly_plot_combined_summary, "SummaryPlot")
+            plotly_plots = c(plotly_plots, list(plotly_plot_combined_summary))
+          } else {
+            plotly_plots = c(plotly_plots, list(plotly_plot_ptm))
+          }
+        }
+      }
+      if(address != FALSE) {
+        .savePlotlyPlotHTML(plotly_plots,address,"ProfilePlot" ,width, height)
+      }
+      plotly_plots
     }
   }
 
