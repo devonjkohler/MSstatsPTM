@@ -132,10 +132,9 @@ groupComparisonPlotsPTM = function(data = data,
   }
   
   if (type == 'HEATMAP') {
-    
-    .plotHeatmap(data, sig, FCcutoff, logBase.pvalue, ylimUp, ylimDown, text.angle,
+    plots <- .plotHeatmap(data, sig, FCcutoff, logBase.pvalue, ylimUp, ylimDown, text.angle,
                   x.axis.size, y.axis.size, dot.size, colorkey, numProtein, 
-                  width, height, address)
+                  width, height, address, isPlotly)
   } else if (type == 'VOLCANOPLOT') {
     plots <- .plotVolcano(data, sig, FCcutoff, logBase.pvalue, ylimUp, ylimDown, xlimUp, 
                   x.axis.size, y.axis.size, dot.size, text.size, legend.size, 

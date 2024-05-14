@@ -200,7 +200,7 @@
                      numProtein, width, height, address){
   ## If there are the file with the same name, 
   ## add next numbering at the end of file name
-  if (address != FALSE) {
+  if (!isPlotly && address != FALSE) {
     allfiles = list.files()
     
     num = 0
@@ -240,7 +240,7 @@
 #' @noRd
 .plot.model.heatmap = function(data, sig, FCcutoff, logBase.pvalue, ylimUp,
                                  ylimDown, x.axis.size, y.axis.size, text.angle,
-                                 colorkey, numProtein, model){
+                                 colorkey, numProtein, model, isPlotly){
   
   Label = Protein = sign_adj_pval = NULL
   
