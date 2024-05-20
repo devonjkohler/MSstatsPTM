@@ -1142,10 +1142,10 @@
   ## 1st plot for Protein plot
   protein_temp = ggplot(data=sub) + facet_grid(~LABEL) +
     geom_point(aes_string(x='RUN', y='ABUNDANCE', 
-                          color='FEATURE', group = 'group_aes', shape='CENSORED'), #
+                          color='FEATURE',  shape='CENSORED'), #
                size=dot.size.profile, na.rm=TRUE) +
     geom_line(aes_string(x='RUN', y='ABUNDANCE', 
-                         color='FEATURE', linetype='FEATURE', group = 'group_aes'), #
+                         color='FEATURE', linetype='FEATURE'), #
               size = 0.5, na.rm=TRUE) +
     scale_colour_manual(values=cbp[s]) +
     scale_linetype_manual(values = ss) +
@@ -1248,11 +1248,9 @@
   ## Draw summarized ptm plot
   ptempall = ggplot(data=final) +
     geom_point(aes_string(x='RUN', y='ABUNDANCE', 
-                          color='analysis',
-                          group = 'group_aes', shape='CENSORED'), size = dot.size.profile, na.rm=TRUE) +
+                          color='analysis', shape='CENSORED'), size = dot.size.profile, na.rm=TRUE) +
     geom_line(aes_string(x='RUN', y='ABUNDANCE', 
-                         color='analysis', linetype='FEATURE', 
-                         group = 'group_aes'), size = 0.5, na.rm=TRUE) + 
+                         color='analysis', linetype='FEATURE'), size = 0.5, na.rm=TRUE) + 
     scale_colour_manual(values = c("lightgray", "darkred")) +
     scale_shape_manual(values = c(16, 1),labels = c("Detected data", "Censored missing data")) +
     scale_size_manual(values = c(1.7, 2), guide = "none") +
