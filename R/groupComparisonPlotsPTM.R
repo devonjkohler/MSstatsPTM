@@ -132,9 +132,17 @@ groupComparisonPlotsPTM = function(data = data,
   }
   
   if (type == 'HEATMAP') {
-    plots <- .plotHeatmap(data, sig, FCcutoff, logBase.pvalue, ylimUp, ylimDown, text.angle,
+    plotly_plots <- .plotHeatmap(data, sig, FCcutoff, logBase.pvalue, ylimUp, ylimDown, text.angle,
                   x.axis.size, y.axis.size, dot.size, colorkey, numProtein, 
                   width, height, address, isPlotly)
+    
+    if(isPlotly) {
+      if(address != FALSE) {
+        .savePlotlyPlotHTML(plotly_plots,address,"Heatmap" ,width, height)
+      }
+      plotly_plots
+    }
+    
   } else if (type == 'VOLCANOPLOT') {
     plots <- .plotVolcano(data, sig, FCcutoff, logBase.pvalue, ylimUp, ylimDown, xlimUp, 
                   x.axis.size, y.axis.size, dot.size, text.size, legend.size, 
