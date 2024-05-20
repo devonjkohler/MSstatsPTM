@@ -6,7 +6,7 @@
 #' be included.
 #' 
 #' @importFrom data.table as.data.table
-#' @importFrom MSstats DIANNtoMSstatsFormat
+#' @importFrom MSstatsConvert DIANNtoMSstatsFormat
 #' 
 #' @param input data.frame of `report.tsv` file produced by Philosopher
 #' @param annotation annotation with Run, Fraction, TechRepMixture, Mixture, Channel, 
@@ -160,9 +160,9 @@ DIANNtoMSstatsPTMFormat = function(input,
 #' performed and only high probability localizations are kept.
 #' 
 #' @export
-#' @importFrom data.table as.data.table
+#' @importFrom data.table as.data.table 
+#' @importFrom MSstatsConvert FragPipetoMSstatsFormat
 #' @importFrom MSstatsTMT PhilosophertoMSstatsTMTFormat
-#' @importFrom MSstats FragPipetoMSstatsFormat
 #' 
 #' @param input data.frame of `msstats.csv` file produced by Philosopher
 #' @param annotation annotation with Run, Fraction, TechRepMixture, Mixture, Channel, 
@@ -347,8 +347,8 @@ FragPipetoMSstatsPTMFormat = function(input,
 #' @export
 #' @importFrom stringr str_extract regex str_replace fixed str_split
 #' @importFrom data.table melt as.data.table `:=` `%like%` setcolorder setDT tstrsplit setcolorder
+#' @importFrom MSstatsConvert MaxQtoMSstatsFormat
 #' @importFrom MSstatsTMT MaxQtoMSstatsTMTFormat
-#' @importFrom MSstats MaxQtoMSstatsFormat
 #' @importFrom checkmate assertChoice assertLogical
 #' 
 #' @param evidence name of 'evidence.txt' data, which includes feature-level 
@@ -692,7 +692,7 @@ MaxQtoMSstatsPTMFormat = function(evidence=NULL,
 #' data processing will be saved. If not provided, such a file will be created 
 #' automatically. If 'append = TRUE', has to be a valid path to a file.
 #' 
-#' @importFrom MSstats PDtoMSstatsFormat 
+#' @importFrom MSstatsConvert PDtoMSstatsFormat
 #' @importFrom MSstatsTMT PDtoMSstatsTMTFormat
 #' @importFrom stringr str_split str_trim str_split_i
 #' @importFrom data.table setnames
@@ -869,7 +869,7 @@ PDtoMSstatsPTMFormat = function(input,
 #' Converts non-TMT Progenesis output into the format needed for MSstatsPTM
 #'
 #' @export
-#' @importFrom MSstats ProgenesistoMSstatsFormat
+#' @importFrom MSstatsConvert ProgenesistoMSstatsFormat
 #' @importFrom data.table as.data.table
 #'
 #' @param ptm_input name of Progenesis output with modified peptides, which is
@@ -1160,7 +1160,7 @@ PStoMSstatsPTMFormat = function(
 #' automatically. If 'append = TRUE', has to be a valid path to a file.
 #' 
 #' @importFrom data.table as.data.table setnames
-#' @importFrom MSstats SkylinetoMSstatsFormat
+#' @importFrom MSstatsConvert SkylinetoMSstatsFormat
 #' 
 #' @return `list` of `data.table`
 #' @export
@@ -1315,7 +1315,7 @@ SkylinetoMSstatsPTMFormat = function(input,
 #' @return a list of two data.tables named 'PTM' and 'PROTEIN' in the format 
 #' required by MSstatsPTM.
 #' @export
-#' @importFrom MSstats SpectronauttoMSstatsFormat
+#' @importFrom MSstatsConvert SpectronauttoMSstatsFormat
 #' @examples
 #' 
 #' head(spectronaut_input)
