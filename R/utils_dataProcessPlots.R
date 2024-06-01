@@ -1518,7 +1518,6 @@
 .qc.all.plot.lf = function(datafeature, groupName, title, 
                             y.limdown, y.limup, x.axis.size, y.axis.size, 
                             text.size) {
-  print("INSIDE ALL LF")
   lineNameAxis = RUN = ABUNDANCE = Name = NULL
   
   ## for annotation of condition
@@ -1568,7 +1567,6 @@
 #' @noRd
 .qc.single.plot.lf = function(datafeature, groupname, protein, y.limdown, y.limup,
                             x.axis.size, y.axis.size,text.size){
-  print("INSIDE SINGLE LF")
   PROTEINNAME = ABUNDANCE = lineNameAxis = RUN = Name = NULL
   
   sub = datafeature[PROTEINNAME == protein, ]

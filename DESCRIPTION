@@ -22,7 +22,7 @@ License: Artistic-2.0
 Depends: R (>= 4.3)
 Imports: dplyr, gridExtra, stringr, stats, ggplot2, stringi,
             grDevices, MSstatsTMT, MSstatsConvert, MSstats,
-            data.table, Rcpp, Biostrings, checkmate, ggrepel
+            data.table, Rcpp, Biostrings, checkmate, ggrepel, plotly, htmltools
 Suggests: knitr, rmarkdown, tinytest, covr
 LazyData: true
 LinkingTo: Rcpp

@@ -153,6 +153,7 @@ dataProcessPlotsPTM = function(data,
                   height, which.PTM, originalPlot, 
                   summaryPlot, address, isPlotly)
     }
+    
     plotly_plots <- list()
     if(isPlotly) {
       og_plotly_plot = NULL
@@ -197,7 +198,6 @@ dataProcessPlotsPTM = function(data,
   ## QC plot (Quality control plot) ##
   ## ---------------------------------
   else if (type == "QCPLOT") {
-    print(label)
     if (label == 'TMT'){
       plots <- .qc.tmt(data.table.list, type, ylimUp, ylimDown, width, height, 
               x.axis.size, y.axis.size, text.size, text.angle,
@@ -279,7 +279,6 @@ dataProcessPlotsPTM = function(data,
   df$legend_group <- gsub("^\\((.*?),.*", "\\1", df$legend_entries)
   df$is_first <- !duplicated(df$legend_group)
   df$is_bool <- ifelse(grepl("TRUE|FALSE", df$legend_group), TRUE, FALSE)
-  # df[nrow(df), "is_first"] <- FALSE 
   df$is_valid_column <- ifelse(grepl("Processed feature-level data|Run summary", df$legend_entries), TRUE, FALSE)
   plot$x$data[[nrow(df)]]$showlegend <- FALSE # remove text legend
   
@@ -326,11 +325,6 @@ facet_strip_bigger <- function(gp){
         size = 18
       )
     ),
-    # xaxis = list(
-    #   titlefont = list(
-    #     size = 15  # Set the font size for the x-axis label
-    #   )
-    # ),
     legend = list(
       x = 0,     # Set the x position of the legend
       y = -0.25,    # Set the y position of the legend (negative value to move below the plot)

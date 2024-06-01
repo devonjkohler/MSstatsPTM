@@ -439,8 +439,6 @@
   
   data$colgroup = factor(data$colgroup, levels=c("black", "blue", "red"))
   plots <- vector("list", nlevels(data$Label))
-  print("len isss")
-  print(nlevels(data$Label))
   ## for multiple volcano plots, 
   for (i in seq_len(nlevels(data$Label))) {
     
