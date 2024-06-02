@@ -316,26 +316,42 @@
     limits = c(-1, 1) * max(abs(obj$sign_adj_pval[is.finite(obj$sign_adj_pval)]))
     data$sign_adj_pval[is.infinite(data$sign_adj_pval)] <- NaN
     obj = data[, c("Protein", "Label", "sign_adj_pval")]
+
+    if (!is.null(numProtein)) {
+      # subset numProtein unique proteins
+      obj$Protein <- as.character(obj$Protein)
+      unique_proteins <- unique(obj$Protein)
+      top_10_proteins <- unique_proteins[1:numProtein]
+      obj <- obj[obj$Protein %in% top_10_proteins, ]
+      limits = c(-1, 1) * max(abs(obj$sign_adj_pval[is.finite(obj$sign_adj_pval)]))
+    }
+    
     colors <- c("#2166AC", "#4393C3", "#92C5DE", "#D1E5F0", "#FFFFFF", "#FDDBC7", "#F4A582", "#D6604D", "#B2182B")
-    heatmap_plot <- plot_ly(obj,
-                            x = ~Label,
-                            y = ~Protein,
-                            z = ~sign_adj_pval,
-                            width = 800,
-                            height = 600,
-                            zmin = limits[1],
-                            zmax = limits[2],
-                            xgap = 0,
-                            ygap = 0,
-                            colorbar = list(title = "(sign) Adj pvalue", tickfont = list(size = 13)),
-                            colors = colors,
-                            zauto=FALSE,
-                            type = "heatmap")%>%
-      layout(title = paste0(model, " : All Pages"),
-             xaxis = list(title = "Comparison", tickangle = 45, tickfont = list(size = x.axis.size)),
-             yaxis = list(title = model, tickfont = list(size = y.axis.size)),
-             plot_bgcolor = "grey"
-             )
+    heatmap_plot <- plot_ly(
+      data = obj,
+      x = as.character(obj$Label),
+      y = obj$Protein,
+      z = ~sign_adj_pval,
+      width = 800,
+      height = 600,
+      zmin = limits[1],
+      zmax = limits[2],
+      xgap = 0,
+      ygap = 0,
+      colorbar = list(title = "(sign) Adj pvalue", tickfont = list(size = 13)),
+      colors = colors,
+      zauto = FALSE,
+      type = "heatmap"
+    )
+    
+    # Customize the layout
+    heatmap_plot <- plotly::layout(
+      heatmap_plot,
+      title = paste0(model, " : All Pages"),
+      xaxis = list(title = "Comparison", tickangle = 45, tickfont = list(size = x.axis.size)),
+      yaxis = list(title = model, tickfont = list(size = y.axis.size)),
+      plot_bgcolor = "grey"
+    )
     return(heatmap_plot)
   }
 
