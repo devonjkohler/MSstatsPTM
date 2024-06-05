@@ -21,7 +21,7 @@ groupComparisonPlotsPTM(
   legend.size = 13,
   ProteinName = TRUE,
   colorkey = TRUE,
-  numProtein = 50,
+  numProtein = NULL,
   width = 10,
   height = 10,
   which.Comparison = "all",

@@ -316,7 +316,6 @@
     limits = c(-1, 1) * max(abs(obj$sign_adj_pval[is.finite(obj$sign_adj_pval)]))
     data$sign_adj_pval[is.infinite(data$sign_adj_pval)] <- NaN
     obj = data[, c("Protein", "Label", "sign_adj_pval")]
-
     if (!is.null(numProtein)) {
       # subset numProtein unique proteins
       obj$Protein <- as.character(obj$Protein)
