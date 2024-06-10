@@ -289,8 +289,10 @@
     ## maximum number of proteins per heatmap
     unique_prot = unique(obj$Protein)
     totalpro = length(unique_prot)
+    if(is.null(numProtein)) {
+      numProtein = 50
+    }
     numheatmap = totalpro %/% numProtein + 1
-    
     ## draw heatmap
     ## loop for numProtein
     for (j in seq_len(numheatmap)) {
