@@ -6,11 +6,13 @@
 \usage{
 groupComparisonPTM(
   data,
-  data.type,
+  ptm_label_type,
+  protein_label_type,
   contrast.matrix = "pairwise",
   moderated = FALSE,
   adj.method = "BH",
   log_base = 2,
+  save_fitted_models = TRUE,
   use_log_file = TRUE,
   append = FALSE,
   verbose = TRUE,
@@ -24,9 +26,11 @@ function \code{\link[MSstatsPTM]{dataSummarizationPTM}}  or
 \code{\link[MSstatsPTM]{dataSummarizationPTM_TMT}} depending on acquisition
 type.}
 
-\item{data.type}{string indicating experimental acquisition type. "TMT" is
-used for TMT labeled experiments. For all other experiments (Label Free/ DDA/
-DIA) use "LabelFree".}
+\item{ptm_label_type}{Indicator of labeling type for PTM dataset. Must be one
+of \code{LF} or \code{TMT}}
+
+\item{protein_label_type}{Indicator of labeling type for PROTEIN dataset.
+Must be one of \code{LF} or \code{TMT}}
 
 \item{contrast.matrix}{comparison between conditions of interests. Default
 models full pairwise comparison between all conditions}
@@ -34,11 +38,14 @@ models full pairwise comparison between all conditions}
 \item{moderated}{For TMT experiments only. TRUE will moderate t statistic;
 FALSE (default) uses ordinary t statistic. Default is FALSE.}
 
-\item{adj.method}{For TMT experiemnts only. Adjusted method for multiple
+\item{adj.method}{For TMT experiments only. Adjusted method for multiple
 comparison. "BH" is default. "BH" is used for all other experiment types}
 
 \item{log_base}{For non-TMT experiments only. The base of the logarithm used
 in summarization.}
+
+\item{save_fitted_models}{logical, if TRUE, fitted models will be added to
+the output.}
 
 \item{use_log_file}{logical. If TRUE, information about data processing
 will be saved to a file.}
@@ -71,6 +78,7 @@ performed. All model results are returned for completeness.
 \examples{
 
 model.lf.msstatsptm = groupComparisonPTM(summary.data, 
-                                     data.type = "LabelFree",
+                                     ptm_label_type="LF",
+                                     protein_label_type="LF",
                                      verbose = FALSE)
 }

@@ -81,7 +81,7 @@ dataSummarizationPTM_TMT = function(
   log_file_path = NULL
   ) {
   
-  ## Start log  
+  ## Start log
   if (is.null(log_file_path) & use_log_file == TRUE){
     time_now = Sys.time()
     path = paste0("MSstatsPTM_log_", gsub("[ :\\-]", "_", time_now),
