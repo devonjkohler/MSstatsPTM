@@ -91,7 +91,7 @@ dataProcessPTM = function(data,
     
     summarized_ptm = do.call(
       proteinSummarization, c(list(data=data$PTM), 
-                              ars[potential_tmt_ars],
+                              ars[tmt_ars],
                               list(MBimpute=MBimpute_ptm))
     )
 
@@ -115,7 +115,7 @@ dataProcessPTM = function(data,
       
       summarized_protein = do.call(
         proteinSummarization, c(list(data=data$PROTEIN), 
-                                ars[potential_tmt_ars],
+                                ars[tmt_ars],
                                 list(MBimpute=MBimpute_protein))
       )
     }
