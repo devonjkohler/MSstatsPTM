@@ -19,17 +19,20 @@
 #' function \code{\link[MSstatsPTM]{dataSummarizationPTM}}  or 
 #' \code{\link[MSstatsPTM]{dataSummarizationPTM_TMT}} depending on acquisition
 #' type.
-#' @param data.type string indicating experimental acquisition type. "TMT" is 
-#' used for TMT labeled experiments. For all other experiments (Label Free/ DDA/ 
-#' DIA) use "LabelFree".
+#' @param ptm_label_type Indicator of labeling type for PTM dataset. Must be one
+#' of `LF` or `TMT`
+#' @param protein_label_type Indicator of labeling type for PROTEIN dataset. 
+#' Must be one of `LF` or `TMT`
 #' @param contrast.matrix comparison between conditions of interests. Default 
 #' models full pairwise comparison between all conditions
 #' @param moderated For TMT experiments only. TRUE will moderate t statistic; 
 #' FALSE (default) uses ordinary t statistic. Default is FALSE.
-#' @param adj.method For TMT experiemnts only. Adjusted method for multiple 
+#' @param adj.method For TMT experiments only. Adjusted method for multiple 
 #' comparison. "BH" is default. "BH" is used for all other experiment types
 #' @param log_base For non-TMT experiments only. The base of the logarithm used 
 #' in summarization.
+#' @param save_fitted_models logical, if TRUE, fitted models will be added to 
+#' the output.
 #' @param use_log_file logical. If TRUE, information about data processing
 #' will be saved to a file.
 #' @param append logical. If TRUE, information about data processing will be 
@@ -47,40 +50,44 @@
 #' @examples 
 #' 
 #' model.lf.msstatsptm = groupComparisonPTM(summary.data, 
-#'                                      data.type = "LabelFree",
+#'                                      ptm_label_type="LF",
+#'                                      protein_label_type="LF",
 #'                                      verbose = FALSE)
-groupComparisonPTM = function(data, data.type,
-                               contrast.matrix = "pairwise",
-                               moderated = FALSE, 
-                               adj.method = "BH",
-                               log_base = 2,
-                               use_log_file = TRUE, 
-                               append = FALSE,
-                               verbose = TRUE, 
-                               log_file_path = NULL,
-                               base = "MSstatsPTM_log_") {
+groupComparisonPTM = function(data, 
+                              ptm_label_type,
+                              protein_label_type,
+                              contrast.matrix = "pairwise",
+                              moderated = FALSE, 
+                              adj.method = "BH",
+                              log_base = 2,
+                              save_fitted_models=TRUE,
+                              use_log_file = TRUE, 
+                              append = FALSE,
+                              verbose = TRUE, 
+                              log_file_path = NULL,
+                              base = "MSstatsPTM_log_") {
   
   ## Start log  
-  if (is.null(log_file_path) & use_log_file == TRUE){
-    time_now = Sys.time()
-    path = paste0(base, gsub("[ :\\-]", "_", time_now), 
-                  ".log")
-    file.create(path)
-  } else {path = log_file_path}
+  # if (is.null(log_file_path) & use_log_file == TRUE){
+  #   time_now = Sys.time()
+  #   path = paste0(base, gsub("[ :\\-]", "_", time_now), 
+  #                 ".log")
+  #   file.create(path)
+  # } else {path = log_file_path}
+  # 
+  # if (data.type == 'TMT'){
+  #   pkg = "MSstatsTMT"
+  #   option_log = "MSstatsTMTLog"
+  # } else {
+  #   pkg = "MSstats"
+  #   option_log = "MSstatsLog"
+  # }
+  # 
+  # MSstatsLogsSettings(use_log_file, append,
+  #                     verbose, log_file_path = path, 
+  #                     pkg_name = pkg)
   
-  if (data.type == 'TMT'){
-    pkg = "MSstatsTMT"
-    option_log = "MSstatsTMTLog"
-  } else {
-    pkg = "MSstats"
-    option_log = "MSstatsLog"
-  }
-  
-  MSstatsLogsSettings(use_log_file, append,
-                      verbose, log_file_path = path, 
-                      pkg_name = pkg)
-  
-  getOption(option_log)("INFO", "Starting parameter and data checks..")
+  # getOption(option_log)("INFO", "Starting parameter and data checks..")
   
   Label = Site = NULL
   
@@ -96,33 +103,34 @@ groupComparisonPTM = function(data, data.type,
   }
   
   ## Create pairwise matrix for label free
-  if (contrast.matrix[1] == "pairwise" & data.type == 'LabelFree'){
-    getOption(option_log)("INFO", "Building pairwise matrix.")
+  if (contrast.matrix[1] == "pairwise"){
+    # getOption(option_log)("INFO", "Building pairwise matrix.")
     labels = unique(data.ptm$ProteinLevelData$GROUP)
     contrast.matrix = MSstatsContrastMatrix('pairwise', labels)
   }
   
   ## PTM Modeling
   message("Starting PTM modeling...")
-  if (data.type == 'TMT'){
-    getOption(option_log)("INFO", "Starting TMT PTM Model")
+  if (ptm_label_type == "TMT"){
+    # getOption(option_log)("INFO", "Starting TMT PTM Model")
     ptm_model_full = groupComparisonTMT(data.ptm, 
                                         contrast.matrix = contrast.matrix,
                                         moderated = moderated, 
                                         adj.method = adj.method,
-                                        save_fitted_models = TRUE,
-                                        use_log_file = use_log_file, 
-                                        append = append, verbose = verbose, 
-                                        log_file_path = path)
+                                        save_fitted_models=save_fitted_models)#,
+                                        # save_fitted_models = TRUE,
+                                        # use_log_file = use_log_file, 
+                                        # append = append, verbose = verbose, 
+                                        # log_file_path = path)
     ptm_model = ptm_model_full$ComparisonResult
     ptm_model_site_sep = ptm_model_full$ComparisonResult
     ptm_model_details = ptm_model_full$FittedModel
-  } else if (data.type == 'LabelFree') {
-    getOption(option_log)("INFO", "Starting non-TMT PTM Model")
+  } else if (ptm_label_type == "LF") {
+    # getOption(option_log)("INFO", "Starting non-TMT PTM Model")
     ptm_model_full = groupComparison(contrast.matrix,
-                                      data.ptm, TRUE, log_base, 
-                                      use_log_file, append, verbose, 
-                                      log_file_path = path)
+                                      data.ptm, save_fitted_models, log_base)#, 
+                                      # use_log_file, append, verbose, 
+                                      # log_file_path = path)
     ptm_model = ptm_model_full$ComparisonResult
     ptm_model_site_sep = ptm_model_full$ComparisonResult
     ptm_model_details = ptm_model_full$FittedModel
@@ -134,26 +142,26 @@ groupComparisonPTM = function(data, data.type,
     
     ## Protein Modeling
     message("Starting Protein modeling...")
-    if (data.type == 'TMT'){
-      getOption(option_log)("INFO", "Starting TMT Protein Model")
+    if (protein_label_type == "TMT"){
+      # getOption(option_log)("INFO", "Starting TMT Protein Model")
       protein_model_full = groupComparisonTMT(data.protein, 
                                           contrast.matrix = contrast.matrix,
                                           moderated = moderated, 
                                           adj.method = adj.method,
-                                          save_fitted_models = TRUE,
-                                          use_log_file = use_log_file,
-                                          append = append,
-                                          verbose = verbose, 
-                                          log_file_path = path)
+                                          save_fitted_models = save_fitted_models)
+                                          # use_log_file = use_log_file,
+                                          # append = append,
+                                          # verbose = verbose, 
+                                          # log_file_path = path)
       protein_model = protein_model_full$ComparisonResult
       protein_model_details = protein_model_full$FittedModel
-    } else if (data.type == 'LabelFree') {
-      getOption(option_log)("INFO", "Starting non-TMT Protein Model")
+    } else if (protein_label_type == "LF") {
+      # getOption(option_log)("INFO", "Starting non-TMT Protein Model")
       protein_model_full = groupComparison(contrast.matrix, 
-                                            data.protein,
-                                            TRUE, log_base, use_log_file, 
-                                            append, verbose, 
-                                            log_file_path = path)
+                                           data.protein, save_fitted_models, 
+                                           log_base, use_log_file)#, 
+                                            # append, verbose, 
+                                            # log_file_path = path)
       protein_model = protein_model_full$ComparisonResult
       protein_model_details = protein_model_full$FittedModel
     }
@@ -162,20 +170,20 @@ groupComparisonPTM = function(data, data.type,
     protein_model = as.data.table(protein_model)
     
     message("Starting adjustment...")
-    getOption(option_log)("INFO", "Starting Protein Adjustment")
+    # getOption(option_log)("INFO", "Starting Protein Adjustment")
     ptm_model_site_sep = copy(ptm_model)
     
     ## extract global protein name
     ptm_model_site_sep = .extractProtein(ptm_model_site_sep, protein_model)
-    getOption(option_log)("INFO", "Rcpp function extracted protein info")
+    # getOption(option_log)("INFO", "Rcpp function extracted protein info")
     
     ## adjustProteinLevel function can only compare one label at a time
     comparisons = unique(ptm_model_site_sep[, Label])
     
     adjusted_model_list = list()
     for (i in seq_len(length(comparisons))) {
-      getOption(option_log)("INFO", paste0("Adjusting for Comparison - ", 
-                                             as.character(i)))
+      # getOption(option_log)("INFO", paste0("Adjusting for Comparison - ", 
+                                             # as.character(i)))
       temp_adjusted_model = .applyPtmAdjustment(comparisons[[i]],
                                                    ptm_model_site_sep,
                                                    protein_model)
@@ -203,7 +211,7 @@ groupComparisonPTM = function(data, data.type,
     
     adjusted_models$Adjusted = TRUE
     
-    if (data.type == 'TMT'){
+    if (ptm_label_type == 'TMT'){
       missing_rows$Tvalue = missing_rows$log2FC / missing_rows$SE
     }
     
@@ -214,8 +222,9 @@ groupComparisonPTM = function(data, data.type,
                                 use.names=TRUE)
     adjusted_models = adjusted_models[!is.na(adjusted_models$Protein)]
     
-    getOption(option_log)("INFO", "Adjustment complete, returning models.")
-    models = list('PTM.Model'=ptm_model, 'PROTEIN.Model'=protein_model,
+    # getOption(option_log)("INFO", "Adjustment complete, returning models.")
+    models = list('PTM.Model'=ptm_model, 
+                  'PROTEIN.Model'=protein_model,
                   'ADJUSTED.Model'=adjusted_models, 
                   'Model.Details'=list('PTM'=ptm_model_details,
                                        'PROTEIN'=protein_model_details))
