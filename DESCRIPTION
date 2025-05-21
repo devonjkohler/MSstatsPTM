@@ -12,9 +12,9 @@ Description: MSstatsPTM provides general statistical methods for quantitative
     estimation of PTM site abundance, and detection of changes in PTMs across 
     experimental conditions. 
 Authors@R: c(
-    person("Devon", "Kohler", email = "kohler.d@northeastern.edu", role = c("aut", "cre")),
+    person("Devon", "Kohler", email = "kohler.d@northeastern.edu", role = c("aut")),
     person("Tsung-Heng", "Tsai", email="tsai.tsungheng@gmail.com", role=c("aut")),
-    person("Tony", "Wu", email = "wu.anthon@northeastern.edu", role = "aut"),
+    person("Anthony", "Wu", email = "wu.anthon@northeastern.edu", role = c("aut", "cre")),
     person("Deril", "Raju", email = "raju.d@northeastern.edu", role = "aut"),
     person("Ting", "Huang", email = "thuang0703@gmail.com", role=c("aut")),
     person("Mateusz", "Staniak", email = "mtst@mstaniak.pl", role = c("aut")),
