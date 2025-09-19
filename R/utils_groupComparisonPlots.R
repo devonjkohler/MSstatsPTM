@@ -302,7 +302,7 @@
       
       limits = c(-1,1)*max(abs(temp_obj$sign_adj_pval[
         is.finite(temp_obj$sign_adj_pval)]))
-      temp_heatmap = ggplot(temp_obj, aes(Label, Protein, fill = sign_adj_pval)
+      temp_heatmap = ggplot(temp_obj, aes(.data$Label, .data$Protein, fill = .data$sign_adj_pval)
       ) + geom_tile() + scale_fill_distiller(
         palette = "RdBu", name = "(sign) Adj pvalue",
         limits = limits) + labs(
@@ -528,9 +528,9 @@
       log_title = 'Log10'
     }
     
-    ptemp = ggplot(aes_string(x='logFC', y='logadjp',
-                               color='colgroup',
-                               label='Protein'),
+    ptemp = ggplot(aes(x = .data$logFC, y = .data$logadjp,
+                               color = .data$colgroup,
+                               label = .data$Protein),
                     data=subtemp) +
       geom_point(size=dot.size) +
       scale_colour_manual(values=c("gray65", "blue", "red"), 
@@ -553,7 +553,7 @@
       } else {
         ptemp = ptemp +
           geom_text_repel(data=subtemp[subtemp$colgroup != "black", ],
-                          aes(label=Protein),
+                          aes(label = .data$Protein),
                           size=text.size,
                           col='black')
       }
@@ -579,9 +579,9 @@
       
       pfinal = ptemp +
         geom_line(data=sigcut,
-                  aes_string(x='logFC', y='logadjp', linetype='line'),
+                  aes(x = .data$logFC, y = .data$logadjp, linetype = .data$line),
                   colour="darkgrey",
-                  size=0.6,
+                  linewidth=0.6,
                   show.legend=TRUE) +
         scale_linetype_manual(values=c('twodash'=6),
                               labels=c(paste0("Adj p-value cutoff (", sig, ")"))
@@ -622,19 +622,19 @@
       ## three lines, with order color first and then assign linetype manual
       pfinal = ptemp +
         geom_line(data=sigcut, 
-                  aes_string(x='logFC', y='logadjp', linetype='line'),
+                  aes(x = .data$logFC, y = .data$logadjp, linetype = .data$line),
                   colour="darkgrey",
-                  size=0.6,
+                  linewidth=0.6,
                   show.legend=TRUE) +
         geom_line(data=FCcutpos,
-                  aes_string(x='logFC', y='logadjp', linetype='line'),
+                  aes(x = .data$logFC, y = .data$logadjp, linetype = .data$line),
                   colour="darkgrey",
-                  size=0.6,
+                  linewidth=0.6,
                   show.legend=TRUE) +
         geom_line(data=FCcutneg,
-                  aes_string(x='logFC', y='logadjp', linetype='line'),
+                  aes(x = .data$logFC, y = .data$logadjp, linetype = .data$line),
                   colour="darkgrey",
-                  size=0.6) +
+                  linewidth=0.6) +
         scale_linetype_manual(values=c('dotted'=3, 'twodash'=6),
                               labels=c(paste0("Fold change cutoff (", FCcutoff, 
                                               ")"),
